@@ -15,9 +15,9 @@ while i<4:
         print('404')
     else:
         print(status_code)
-        total = total + ' /t '+str(code[0].text.split()[0])
+        total = total + ' \t\n '+str(code[0].text.split()[0])
         i = i + 1
 
-fh = open('code.txt','w')
+fh = open('code.txt','a')
 fh.write(total)
 fh.close()
