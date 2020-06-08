@@ -26,7 +26,6 @@ class ParseCode {
 			String splitStr = sb.toString();
 			String[] songArray = splitStr.split("OxO");
 			System.out.println(songArray[1].toString());
-			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
