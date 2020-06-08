@@ -22,9 +22,11 @@ class ParseCode {
 				String s = new String(buf, 0, len);
 				sb.append(s);
 			}
-			String[] songArray = sb.toString().split("OxO");
-			System.out.println(songArray[0]);
 			fis.close();
+			String splitStr = sb.toString();
+			String[] songArray = splitStr.split("OxO");
+			System.out.println(songArray[1].toString());
+			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
