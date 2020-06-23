@@ -2,6 +2,6 @@ package main
 
 import "fmt"
 
-func mainT() {
+func main() {
 	fmt.Printf("hello, world\n")
 }
