@@ -28,10 +28,14 @@ func main() {
 	app.Handle("GET", "/ping", func(ctx iris.Context) {
 		ctx.JSON(iris.Map{"message": "pong"})
 	})
-
+	app.HandleDir("/static", "./views")
 	app.Get("/user/{id:uint64}", func(ctx iris.Context) {
 		userID, _ := ctx.Params().GetUint64("id")
 		ctx.Writef("User ID: %d", userID)
+	})
+	app.Get("/search/{search:string}", func(ctx iris.Context) {
+		searchKey := ctx.Params().GetString("search")
+		ctx.Writef("not ready to return result by key :%s", searchKey)
 	})
 	// 使用nginx监听80/443 再转发到8888
 	app.Listen(":8888")
