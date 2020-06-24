@@ -13,7 +13,7 @@ func main() {
 	// Resource:  http://localhost:8080
 	app.Get("/", func(ctx iris.Context) {
 		// Bind: {{.message}} with "Hello world!"
-		ctx.ViewData("message", "Hello world!")
+		ctx.ViewData("message", "Hi Sayari !")
 		// Render template file: ./views/hello.html
 		ctx.View("hello.html")
 	})
