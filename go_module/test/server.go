@@ -89,7 +89,7 @@ func main() {
 
 		io.Copy(out, file)
 		path := "https://sayarii.art/static/upload/" + fname
-		ctx.Writef("file path is -->:%s", path)
+		ctx.Writef("file path is -->:\n%s", path)
 	})
 	// 使用nginx监听80/443 再转发到8888
 	app.Listen(":8888")
