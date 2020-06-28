@@ -14,6 +14,13 @@ import (
 
 const maxSize = 5 << 20 //5MB
 // test new ssh key
+type Song struct {
+	title  string
+	pic    string
+	singer string
+	score  string
+}
+
 func main() {
 	app := iris.New()
 	app.RegisterView(iris.HTML("./views", ".html"))
@@ -26,11 +33,16 @@ func main() {
 		// Render template file: ./views/hello.html
 		ctx.View("hello.html")
 	})
+	app.Post("/addSong", func(ctx iris.Context) {
+		title := ctx.PostValue("title")
+		pic := ctx.PostValue("pic")
+		singer := ctx.PostValue("singer")
+		score := ctx.PostValue("score")
+		fmt.Printf("成功取得参数\ntitle:%s\npic:%s\nsinger:%s\nscore:%s",
+			title, pic, singer, score)
 
-	// app.Get("/", func(ctx iris.Context) {
-	// 	ctx.Writef("Hello from the SECURE server")
-	// })
-
+		module.api.addSong(&Song{title: title, pic: pic, singer: singer, score: score})
+	})
 	app.Get("/mypath", func(ctx iris.Context) {
 		ctx.Writef("Hello from the SECURE server on path /mypath")
 	})
