@@ -14,12 +14,12 @@ import (
 
 const maxSize = 5 << 20 //5MB
 // test new ssh key
-type Song struct {
-	title  string
-	pic    string
-	singer string
-	score  string
-}
+// type Song struct {
+// 	title  string
+// 	pic    string
+// 	singer string
+// 	score  string
+// }
 
 func main() {
 	app := iris.New()
@@ -41,7 +41,14 @@ func main() {
 		fmt.Printf("成功取得参数\ntitle:%s\npic:%s\nsinger:%s\nscore:%s",
 			title, pic, singer, score)
 
-		module.api.addSong(&Song{title: title, pic: pic, singer: singer, score: score})
+		addSong(Song{Title: title, Pic: pic, Singer: singer, Score: score})
+	})
+	app.Get("/getSong/{title:string}", func(ctx iris.Context) {
+		title := ctx.Params().GetString("title")
+		// gorm get data
+		var s Song
+		s = getSong(title)
+		ctx.Writef("title:%s\npic:%s\nsinger:%s\nscore:%s", s.Title, s.Pic, s.Singer, s.Score)
 	})
 	app.Get("/mypath", func(ctx iris.Context) {
 		ctx.Writef("Hello from the SECURE server on path /mypath")

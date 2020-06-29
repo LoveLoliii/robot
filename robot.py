@@ -3,9 +3,9 @@ import bs4
 import json
 
 url = 'https://github.com/zytx121/je/issues/'
-i = 1
+i = 473
 total=''
-while i<2:#1132
+while i<1132:#1132
     urln = url + str(i)
     print(urln)
     response = requests.get(urln)
@@ -19,10 +19,13 @@ while i<2:#1132
         print(status_code)
         #获取h1
         h1 = code[0].find('h1')
-        title = h1.text
+        title = h1
         pic = code[0].find('p')
-        singer = code[0].find('li').text 
-        score = code[0].find('code').text
+        if(code[0].find('li') is None):
+            singer=""    
+        else:
+            singer = code[0].find('li').text  
+        score = code[0].find('code')
         #total = total + ' \t\n OxO '+str(code[0].text)
         #try use api save data to server
         res = {"title":title,"pic":pic,"singer":singer,"score":score}
