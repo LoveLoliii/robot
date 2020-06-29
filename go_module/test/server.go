@@ -14,6 +14,11 @@ import (
 	//gorm
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+
+	//redis
+	"context"
+
+	"github.com/go-redis/redis/v8"
 )
 
 const maxSize = 5 << 20 //5MB
@@ -26,6 +31,7 @@ const maxSize = 5 << 20 //5MB
 // }
 
 func main() {
+	initData()
 	app := iris.New()
 	app.RegisterView(iris.HTML("./views", ".html"))
 	//app.Use(myMiddleware)
@@ -54,6 +60,14 @@ func main() {
 		s = getSong(title)
 		ctx.Writef("title:%s\npic:%s\nsinger:%s\nscore:%s", s.Title, s.Pic, s.Singer, s.Score)
 	})
+
+	app.Get("/querySongTitle/{searchKey:string}", func(ctx iris.Context) {
+		searchKey := ctx.Params().GetString("searchKey")
+		fmt.Printf("%s", searchKey)
+		// query titles from redis server
+		//rdb.Get(ctxx,"songs")
+	})
+
 	app.Get("/mypath", func(ctx iris.Context) {
 		ctx.Writef("Hello from the SECURE server on path /mypath")
 	})
@@ -177,3 +191,84 @@ func addSong(s Song) {
 	//db.Delete(&product)
 
 }
+
+// do init
+func initData() {
+	// try load tilte to redis server
+
+	//exampleNewRedisClient()
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "123456", // no pwd set
+		DB:       0,        //use default db
+	})
+
+	pong, err := rdb.Ping(ctxx).Result()
+	fmt.Println(pong, err)
+	val, err1 := rdb.Get(ctxx, "songs").Result()
+	if err != nil {
+		panic(err1)
+	}
+	fmt.Println("key", val)
+	db, err := gorm.Open("sqlite3", "song.db")
+	if err != nil {
+		panic("failed to connect database")
+	}
+	defer db.Close()
+
+	db.AutoMigrate(&Song{})
+	var sss []Song
+	//db.First(&product, 1)
+	rs := db.Find(&sss).Error
+	fmt.Println(rs)
+	fmt.Println(sss[1].Title)
+	// write to redis server
+	t1 := time.Now().UnixNano() / 1e6
+	for idx, song := range sss {
+
+		fmt.Println(song.Title)
+		// ZSet 无法存入 未知原因 改用list list会重复 使用set
+		// val, err1 := rdb.ZInterStore(ctxx, "songs", &redis.ZStore{
+		// 	Keys:    []string{song.Title},
+		// 	Weights: []float64{1.0}}).Result()
+		// if err != nil {
+		// 	panic(err1)
+		// }
+		// fmt.Println("key", val)
+		//rdb.Command()
+		sort := int64(idx)
+		t := rdb.Get(ctxx, "songs")
+
+		var flag bool
+		flag = true
+		for s, i := range t {
+			if s == song.Title {
+				flag = false
+			}
+		}
+		if !flag {
+			rs := rdb.LPush(ctxx, "songs", song.Title)
+			fmt.Println("key", rs)
+		} else {
+			fmt.Println("已存在")
+		}
+
+		idx = idx + 1
+
+	}
+	t2 := time.Now().UnixNano() / 1e6
+	fmt.Printf("%v毫秒", (t2 - t1))
+
+	//readDataFromSqlite3()
+}
+
+var ctxx = context.Background()
+
+//var rdb redis.Client
+
+// func exampleNewRedisClient() {
+
+// }
+// func readDataFromSqlite3() {
+
+// }
