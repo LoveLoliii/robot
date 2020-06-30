@@ -31,7 +31,7 @@ const maxSize = 5 << 20 //5MB
 // }
 
 func main() {
-	initData()
+	//initData()
 	app := iris.New()
 	app.RegisterView(iris.HTML("./views", ".html"))
 	//app.Use(myMiddleware)
@@ -48,24 +48,32 @@ func main() {
 		pic := ctx.PostValue("pic")
 		singer := ctx.PostValue("singer")
 		score := ctx.PostValue("score")
-		fmt.Printf("成功取得参数\ntitle:%s\npic:%s\nsinger:%s\nscore:%s",
-			title, pic, singer, score)
+		issue := ctx.PostValue("issue")
+		fmt.Printf("成功取得参数\ntitle:%s\npic:%s\nsinger:%s\nscore:%s\nissue:%s",
+			title, pic, singer, score, issue)
 
-		addSong(Song{Title: title, Pic: pic, Singer: singer, Score: score})
+		addSong(Song{Title: title, Pic: pic, Singer: singer, Score: score, Issue: issue})
 	})
+	// use song name
 	app.Get("/getSong/{title:string}", func(ctx iris.Context) {
 		title := ctx.Params().GetString("title")
 		// gorm get data
 		var s Song
 		s = getSong(title)
-		ctx.Writef("title:%s\npic:%s\nsinger:%s\nscore:%s", s.Title, s.Pic, s.Singer, s.Score)
+		ctx.Writef("title:%s\npic:%s\nsinger:%s\nscore:%s\nissue:%s", s.Title, s.Pic, s.Singer, s.Score, s.Issue)
 	})
-
-	app.Get("/querySongTitle/{searchKey:string}", func(ctx iris.Context) {
+	// query by song name
+	app.Get("/querySong/{searchKey:string}", func(ctx iris.Context) {
 		searchKey := ctx.Params().GetString("searchKey")
 		fmt.Printf("%s", searchKey)
-		// query titles from redis server
+		// query titles from \redis server\ sqlite
 		//rdb.Get(ctxx,"songs")
+		var ss []Song
+		ss = querySong(searchKey)
+		for k, v := range ss {
+			fmt.Printf("K:%d,v:%s", k, v.Title)
+			ctx.Writef("title:%s\npic:%s\nsinger:%s\nscore:%s\nissue:%s", v.Title, v.Pic, v.Singer, v.Score, v.Issue)
+		}
 	})
 
 	app.Get("/mypath", func(ctx iris.Context) {
@@ -154,6 +162,7 @@ type Song struct {
 	Pic    string
 	Singer string
 	Score  string
+	Issue  string
 	gorm.Model
 }
 
@@ -170,6 +179,18 @@ func getSong(t string) Song {
 	db.First(&ss, "title = ?", t)
 	return ss
 }
+func querySong(t string) []Song {
+	db, err := gorm.Open("sqlite3", "song.db")
+	if err != nil {
+		panic("failed to connect database")
+	}
+	defer db.Close()
+
+	db.AutoMigrate(&Song{})
+	var ss []Song
+	db.Where("title LIKE ?", "%"+t+"%").Find(&ss)
+	return ss
+}
 func addSong(s Song) {
 	db, err := gorm.Open("sqlite3", "song.db")
 	if err != nil {
@@ -178,14 +199,21 @@ func addSong(s Song) {
 	defer db.Close()
 
 	db.AutoMigrate(&Song{})
+	var sr Song
+	db.Where("issue =?", s.Issue).First(&sr)
+	fmt.Printf(sr.Issue)
+	if sr.Issue == "" {
+		db.Create(&Song{Title: s.Title, Pic: s.Pic,
+			Singer: s.Singer, Score: s.Score, Issue: s.Issue})
+		fmt.Printf("add success")
+	} else {
+		fmt.Printf("add failed")
+	}
 
-	db.Create(&Song{Title: s.Title, Pic: s.Pic,
-		Singer: s.Singer, Score: s.Score})
-
-	var ss Song
+	// var ss Song
 	//db.First(&product, 1)
-	db.First(&ss, "title = ?", "支え")
-	fmt.Printf(ss.Singer)
+	// db.First(&ss, "title = ?", "支え")
+	// fmt.Printf(ss.Singer)
 	//db.Model(&product).Update("Price", 2000)
 
 	//db.Delete(&product)
@@ -236,22 +264,22 @@ func initData() {
 		// }
 		// fmt.Println("key", val)
 		//rdb.Command()
-		sort := int64(idx)
-		t := rdb.Get(ctxx, "songs")
+		//sort := int64(idx)
+		// t := rdb.Get(ctxx, "songs")
 
-		var flag bool
-		flag = true
-		for s, i := range t {
-			if s == song.Title {
-				flag = false
-			}
-		}
-		if !flag {
-			rs := rdb.LPush(ctxx, "songs", song.Title)
-			fmt.Println("key", rs)
-		} else {
-			fmt.Println("已存在")
-		}
+		// var flag bool
+		// flag = true
+		// for s, i := range t {
+		// 	if s == song.Title {
+		// 		flag = false
+		// 	}
+		// }
+		// if !flag {
+		// 	rs := rdb.LPush(ctxx, "songs", song.Title)
+		// 	fmt.Println("key", rs)
+		// } else {
+		// 	fmt.Println("已存在")
+		// }
 
 		idx = idx + 1
 
