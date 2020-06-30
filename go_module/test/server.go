@@ -63,7 +63,7 @@ func main() {
 		ctx.Writef("title:%s\npic:%s\nsinger:%s\nscore:%s\nissue:%s", s.Title, s.Pic, s.Singer, s.Score, s.Issue)
 	})
 	// query by song name
-	app.Get("/querySong/{searchKey:string}", func(ctx iris.Context) {
+	app.Post("/querySong/{searchKey:string}", func(ctx iris.Context) {
 		searchKey := ctx.Params().GetString("searchKey")
 		fmt.Printf("%s", searchKey)
 		// query titles from \redis server\ sqlite
@@ -74,6 +74,12 @@ func main() {
 			fmt.Printf("K:%d,v:%s", k, v.Title)
 			ctx.Writef("title:%s\npic:%s\nsinger:%s\nscore:%s\nissue:%s", v.Title, v.Pic, v.Singer, v.Score, v.Issue)
 		}
+	})
+
+	// query on web
+	app.Get("/querySong", func(ctx iris.Context) {
+		ctx.View("query_song.html")
+
 	})
 
 	app.Get("/mypath", func(ctx iris.Context) {

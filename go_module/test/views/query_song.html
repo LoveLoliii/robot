@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@5.x/css/materialdesignicons.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-main>
+        <v-container> 
+            <form>
+                
+                    <v-col cols="12" sm ="6" md ="3"> 
+                        <v-text-field label="搜索词" 
+                            v-model="search" 
+                            outlined
+                            color="teal"
+                            max-counter=8
+                            >
+                        </v-text-field>
+                     </v-col>  
+                    <v-col cols="12" sm ="6" md ="3">  
+                       <v-btn outlined  color="teal" class="mr-4" 
+                            @click="submit">查找</v-btn>
+                   </v-col>  
+                   <v-col cols="12" sm ="6" md ="3"> 
+                    <v-textarea  label="结果" 
+                        auto-grow  
+                        readonly  
+                        v-model="rs" 
+                        outlined
+                        color="teal"
+                        max-counter=8
+                        >
+                    </v-textarea>
+                 </v-col>  
+                 
+                
+            </form>
+            
+                
+                  <!-- <v-text-field hint="SEARCH SONGS"  >Input</v-text-field> -->
+                
+             
+            </v-container>
+      
+      </v-main>
+    </v-app>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      vuetify: new Vuetify(),
+      data:{
+          search:'',
+          rs:''
+      },
+      methods: {
+        submit(eve) {
+            //alert(this.search)
+            axios
+                .post("/querySong/"+this.search)
+                .then(response => (this.rs = response.data))
+                .catch(function (error){
+                    console.info(error)
+                })
+        }
+    }
+    }) 
+   
+  </script>
+</body>
+</html>
