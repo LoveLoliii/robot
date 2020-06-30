@@ -9,30 +9,35 @@
 <body>
   <div id="app">
     <v-app>
-      <v-main>
+      <v-main  >
         <v-container> 
             <form>
                 
-                    <v-col cols="12" sm ="6" md ="3"> 
-                        <v-text-field label="搜索词" 
+                    <v-col cols="12" sm ="6" md ="8" lg="10" xl="12"> 
+                        <v-text-field label="搜索词"
+                          max-width=600
                             v-model="search" 
                             outlined
                             color="teal"
-                            max-counter=8
+                             
+                            elevation=5
                             >
                         </v-text-field>
                      </v-col>  
-                    <v-col cols="12" sm ="6" md ="3">  
-                       <v-btn outlined  color="teal" class="mr-4" 
+                    <v-col cols="12" sm ="8" md ="8" lg="10" xl="12">  
+                       <v-btn 
+                         
+                       outlined  color="teal" class="mr-4" 
                             @click="submit">查找</v-btn>
                    </v-col>  
-                   <v-col cols="12" sm ="6" md ="3"> 
+                   <v-col cols="12" sm ="8" md ="8" lg="10" xl="12">  
                     <v-textarea  label="结果" 
                         auto-grow  
+                        elevation=5
                         readonly  
                         v-model="rs" 
                         outlined
-                        color="teal"
+                        color="teal  lighten-5"
                         max-counter=8
                         >
                     </v-textarea>
