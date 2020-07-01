@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/kataras/iris/v12"
+	//log
+	"go.uber.org/zap"
 
 	//gorm
 	"github.com/jinzhu/gorm"
@@ -17,8 +19,6 @@ import (
 
 	//redis
 	"context"
-
-	"github.com/go-redis/redis/v8"
 )
 
 const maxSize = 5 << 20 //5MB
@@ -29,34 +29,84 @@ const maxSize = 5 << 20 //5MB
 // 	singer string
 // 	score  string
 // }
+type Config struct {
+	gorm.Model
+	Times int64
+}
+
+func getTimes() int64 {
+	var times int64 = 1
+	//add times
+	db, err := gorm.Open("sqlite3", "config.db")
+	if err != nil {
+		panic("failed to connect database")
+	}
+	defer db.Close()
+
+	db.AutoMigrate(&Config{})
+	var sr Config
+	db.First(&sr)
+	if sr.Times == 0 {
+		sr = Config{Times: 1}
+		db.Create(&sr)
+	} else {
+		times = sr.Times + 1
+		db.Model(&sr).Update("times", times)
+	}
+
+	return times
+}
 
 func main() {
-	//initData()
+	initStart()
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
 	app := iris.New()
 	app.RegisterView(iris.HTML("./views", ".html"))
 	//app.Use(myMiddleware)
-	// Method:    GET
-	// Resource:  http://localhost:8080
 	app.Get("/", func(ctx iris.Context) {
+		logger.Info("router info",
+			zap.String("method", "GET"),
+			zap.String("url", "/"),
+		)
 		// Bind: {{.message}} with "Hello world!"
 		ctx.ViewData("message", "Hi Sayari !")
 		// Render template file: ./views/hello.html
+		var times int64 = getTimes()
+		ctx.ViewData("times", times)
 		ctx.View("hello.html")
 	})
 	app.Post("/addSong", func(ctx iris.Context) {
+		logger.Info("router info",
+			zap.String("method", "POST"),
+			zap.String("url", "/addSong"),
+		)
+
 		title := ctx.PostValue("title")
 		pic := ctx.PostValue("pic")
 		singer := ctx.PostValue("singer")
 		score := ctx.PostValue("score")
 		issue := ctx.PostValue("issue")
-		fmt.Printf("成功取得参数\ntitle:%s\npic:%s\nsinger:%s\nscore:%s\nissue:%s",
-			title, pic, singer, score, issue)
+		logger.Info("成功取得参数",
+			zap.String("title", title),
+			zap.String("pic", pic),
+			zap.String("singer", singer),
+			zap.String("score", score),
+			zap.String("issue", issue),
+		)
+		// fmt.Printf("成功取得参数\ntitle:%s\npic:%s\nsinger:%s\nscore:%s\nissue:%s",
+		// 	title, pic, singer, score, issue)
 
 		addSong(Song{Title: title, Pic: pic, Singer: singer, Score: score, Issue: issue})
 	})
 	// use song name
 	app.Get("/getSong/{title:string}", func(ctx iris.Context) {
 		title := ctx.Params().GetString("title")
+		logger.Info("router info",
+			zap.String("method", "Get"),
+			zap.String("url", "/getSong"),
+			zap.String("params", title),
+		)
 		// gorm get data
 		var s Song
 		s = getSong(title)
@@ -65,19 +115,36 @@ func main() {
 	// query by song name
 	app.Post("/querySong/{searchKey:string}", func(ctx iris.Context) {
 		searchKey := ctx.Params().GetString("searchKey")
-		fmt.Printf("%s", searchKey)
+		// fmt.Printf("%s", searchKey)
+		logger.Info("router info",
+			zap.String("method", "POST"),
+			zap.String("url", "/querySong"),
+			zap.String("params", searchKey),
+		)
 		// query titles from \redis server\ sqlite
 		//rdb.Get(ctxx,"songs")
 		var ss []Song
 		ss = querySong(searchKey)
 		for k, v := range ss {
-			fmt.Printf("K:%d,v:%s", k, v.Title)
+			// fmt.Printf("K:%d,v:%s", k, v.Title)
+			logger.Info("遍历歌曲中",
+				zap.Int("where", k),
+				zap.String("title", v.Title),
+				zap.String("pic", v.Pic),
+				zap.String("singer", v.Singer),
+				zap.String("score", v.Score),
+				zap.String("issue", v.Issue),
+			)
 			ctx.Writef("title:%s\npic:%s\nsinger:%s\nscore:%s\nissue:%s", v.Title, v.Pic, v.Singer, v.Score, v.Issue)
 		}
 	})
 
 	// query on web
 	app.Get("/querySong", func(ctx iris.Context) {
+		logger.Info("router info",
+			zap.String("method", "GET"),
+			zap.String("url", "/querySong"),
+		)
 		ctx.View("query_song.html")
 
 	})
@@ -86,6 +153,10 @@ func main() {
 		ctx.Writef("Hello from the SECURE server on path /mypath")
 	})
 	app.Handle("GET", "/ping", func(ctx iris.Context) {
+		logger.Info("router info",
+			zap.String("method", "GET"),
+			zap.String("url", "/ping"),
+		)
 		ctx.JSON(iris.Map{"message": "pong"})
 	})
 	app.HandleDir("/static", "./views")
@@ -101,7 +172,10 @@ func main() {
 	// Serve the upload_form.html to the client.
 	app.Get("/upload", func(ctx iris.Context) {
 		// create a token (optionally).
-
+		logger.Info("router info",
+			zap.String("method", "GET"),
+			zap.String("url", "/upload"),
+		)
 		now := time.Now().Unix()
 		h := md5.New()
 		io.WriteString(h, strconv.FormatInt(now, 10))
@@ -115,7 +189,11 @@ func main() {
 	})
 
 	app.Post("/upload", iris.LimitRequestBodySize(maxSize), func(ctx iris.Context) {
-		fmt.Printf("upload")
+		//fmt.Printf("upload")
+		logger.Info("router info",
+			zap.String("method", "POST"),
+			zap.String("url", "/upload"),
+		)
 		// Get the file from the request.
 		file, info, err := ctx.FormFile("uploadfile")
 		if err != nil {
@@ -227,71 +305,73 @@ func addSong(s Song) {
 }
 
 // do init
-func initData() {
+
+func initStart() {
+
 	// try load tilte to redis server
 
 	//exampleNewRedisClient()
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "123456", // no pwd set
-		DB:       0,        //use default db
-	})
+	// rdb := redis.NewClient(&redis.Options{
+	// 	Addr:     "localhost:6379",
+	// 	Password: "123456", // no pwd set
+	// 	DB:       0,        //use default db
+	// })
 
-	pong, err := rdb.Ping(ctxx).Result()
-	fmt.Println(pong, err)
-	val, err1 := rdb.Get(ctxx, "songs").Result()
-	if err != nil {
-		panic(err1)
-	}
-	fmt.Println("key", val)
-	db, err := gorm.Open("sqlite3", "song.db")
-	if err != nil {
-		panic("failed to connect database")
-	}
-	defer db.Close()
+	// pong, err := rdb.Ping(ctxx).Result()
+	// fmt.Println(pong, err)
+	// val, err1 := rdb.Get(ctxx, "songs").Result()
+	// if err != nil {
+	// 	panic(err1)
+	// }
+	// fmt.Println("key", val)
+	// db, err := gorm.Open("sqlite3", "song.db")
+	// if err != nil {
+	// 	panic("failed to connect database")
+	// }
+	// defer db.Close()
 
-	db.AutoMigrate(&Song{})
-	var sss []Song
-	//db.First(&product, 1)
-	rs := db.Find(&sss).Error
-	fmt.Println(rs)
-	fmt.Println(sss[1].Title)
-	// write to redis server
-	t1 := time.Now().UnixNano() / 1e6
-	for idx, song := range sss {
+	// db.AutoMigrate(&Song{})
+	// var sss []Song
+	// //db.First(&product, 1)
+	// rs := db.Find(&sss).Error
+	// fmt.Println(rs)
+	// fmt.Println(sss[1].Title)
+	// // write to redis server
+	// t1 := time.Now().UnixNano() / 1e6
+	// for idx, song := range sss {
 
-		fmt.Println(song.Title)
-		// ZSet 无法存入 未知原因 改用list list会重复 使用set
-		// val, err1 := rdb.ZInterStore(ctxx, "songs", &redis.ZStore{
-		// 	Keys:    []string{song.Title},
-		// 	Weights: []float64{1.0}}).Result()
-		// if err != nil {
-		// 	panic(err1)
-		// }
-		// fmt.Println("key", val)
-		//rdb.Command()
-		//sort := int64(idx)
-		// t := rdb.Get(ctxx, "songs")
+	// 	fmt.Println(song.Title)
+	// ZSet 无法存入 未知原因 改用list list会重复 使用set
+	// val, err1 := rdb.ZInterStore(ctxx, "songs", &redis.ZStore{
+	// 	Keys:    []string{song.Title},
+	// 	Weights: []float64{1.0}}).Result()
+	// if err != nil {
+	// 	panic(err1)
+	// }
+	// fmt.Println("key", val)
+	//rdb.Command()
+	//sort := int64(idx)
+	// t := rdb.Get(ctxx, "songs")
 
-		// var flag bool
-		// flag = true
-		// for s, i := range t {
-		// 	if s == song.Title {
-		// 		flag = false
-		// 	}
-		// }
-		// if !flag {
-		// 	rs := rdb.LPush(ctxx, "songs", song.Title)
-		// 	fmt.Println("key", rs)
-		// } else {
-		// 	fmt.Println("已存在")
-		// }
+	// var flag bool
+	// flag = true
+	// for s, i := range t {
+	// 	if s == song.Title {
+	// 		flag = false
+	// 	}
+	// }
+	// if !flag {
+	// 	rs := rdb.LPush(ctxx, "songs", song.Title)
+	// 	fmt.Println("key", rs)
+	// } else {
+	// 	fmt.Println("已存在")
+	// }
 
-		idx = idx + 1
+	// 	idx = idx + 1
 
-	}
-	t2 := time.Now().UnixNano() / 1e6
-	fmt.Printf("%v毫秒", (t2 - t1))
+	// }
+	// t2 := time.Now().UnixNano() / 1e6
+	// fmt.Printf("%v毫秒", (t2 - t1))
 
 	//readDataFromSqlite3()
 }
