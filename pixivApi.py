@@ -1,7 +1,7 @@
 from pixivpy3 import *
 
 api = AppPixivAPI()
-api.login("loveloliii", "758549127")   # Not required
+api.login("loveloliii", "")   # Not required
 json_result = api.illust_detail(59580629)
 illust = json_result.illust
 print(">>> origin url: %s" % illust.image_urls['large'])
