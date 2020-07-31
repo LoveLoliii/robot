@@ -96,7 +96,6 @@ func main() {
 		)
 		// fmt.Printf("成功取得参数\ntitle:%s\npic:%s\nsinger:%s\nscore:%s\nissue:%s",
 		// 	title, pic, singer, score, issue)
-
 		addSong(Song{Title: title, Pic: pic, Singer: singer, Score: score, Issue: issue})
 	})
 	// use song name
