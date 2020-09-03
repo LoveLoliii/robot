@@ -2,9 +2,23 @@ import requests
 import bs4
 import json
 import random
-url = 'https://tnmb.org/t/163880?page='
+import time
+#ac匿名版 novel爬取
+#一些配置
+#此url是将要爬取的url
+#url = 'https://tnmb.org/t/163880?page='
+#t为串号
+t='1376846'
+url = 'https://tnmb.org/t/'+t+'?page='
+#起始页
 i = 1
+#总页数
+pages=68
+#过滤字数
+filter_words=150
+#保存爬取内容
 total=""
+#user_agent 集合
 USER_AGENTS = [
     "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; AcooBrowser; .NET CLR 1.1.4322; .NET CLR 2.0.50727)",
     "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0; Acoo Browser; SLCC1; .NET CLR 2.0.50727; Media Center PC 5.0; .NET CLR 3.0.04506)",
@@ -23,7 +37,8 @@ USER_AGENTS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_3) AppleWebKit/535.20 (KHTML, like Gecko) Chrome/19.0.1036.7 Safari/535.20",
     "Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; fr) Presto/2.9.168 Version/11.52",
 ]
-while i<=68:
+#此i代表将要爬取的page
+while i<=pages:
     urln = url + str(i)
     #print(urln)
     headers={'User-Agent':random.choice(USER_AGENTS)}
@@ -37,7 +52,8 @@ while i<=68:
     for contents in code:
         strs = str(contents.text);
         #print(len(strs));
-        if  len(strs) > 150:
+        #粗暴的过滤评论（存在误伤或过滤不全的问题
+        if  len(strs) > filter_words:
             #print(strs);
             if strs in total:
                 print("已存在");
@@ -46,6 +62,6 @@ while i<=68:
                 total+=strs;
             
     i+=1
-fh = open('novel.txt','a',encoding='utf-8')
+fh = open('novel_'+t+'_'+str(time.time())+'.txt','a',encoding='utf-8')
 fh.write(total)
 fh.close()
