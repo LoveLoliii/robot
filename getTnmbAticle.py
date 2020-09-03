@@ -56,6 +56,7 @@ while i<=pages:
         if  len(strs) > filter_words:
             #print(strs);
             if strs in total:
+                #过滤每页的主贴重复
                 print("已存在");
             else:    
                 total+="\n";
