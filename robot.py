@@ -54,22 +54,24 @@ def getData(i,url,USER_AGENTS,raw_list):
     urln = url + str(i)
     #print(urln)
     headers={'User-Agent':random.choice(USER_AGENTS)}
-    #try:
-    response = requests.get(urln,headers=headers)
-    #except ConnectionError:
-     #   print("connectionError:"+urln)
-    #else:
-    status_code = response.status_code
-    content = bs4.BeautifulSoup(response.content.decode("utf-8"),"lxml")
-    code = content.find('table')
-    if(status_code == 404): 
-        print('404_')
+    try:
+        response = requests.get(urln,headers=headers)
+    except ConnectionError:
+       print("connectionError:"+urln)
+       getData(i,url,USER_AGENTS,raw_list)
     else:
-    #        try:
-        raw  = code.prettify()
-        raw_list.append(raw)
-        #    except AttributeError:
-         #       print("AttributeError")
+        status_code = response.status_code
+        content = bs4.BeautifulSoup(response.content.decode("utf-8"),"lxml")
+        code = content.find('table')
+        if(status_code == 404): 
+            print('404_')
+        else:
+            try:
+                raw  = code.prettify()
+                raw_list.append(raw)
+            except AttributeError:
+               print("AttributeError")
+               getData(i,url,USER_AGENTS,raw_list)
         #print(status_code)
         #获取h1
         #h1 = code.find('h1')
@@ -89,7 +91,7 @@ def getData(i,url,USER_AGENTS,raw_list):
 while i<=x:#x:#1132
     try:
         getData(i,url,USER_AGENTS,raw_list)
-    except Exception:
+    except Exception as e:
         getData(i,url,USER_AGENTS,raw_list)
     else:
         i = i + 1 
