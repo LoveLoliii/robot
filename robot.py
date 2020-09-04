@@ -49,7 +49,7 @@ print(x)
 raw_list = []
 #x =int(x)
 
-def getData():
+def getData(i,url,USER_AGENTS,raw_list):
     print(i)
     urln = url + str(i)
     #print(urln)
@@ -85,12 +85,14 @@ def getData():
         #res = {"title":title,"pic":pic,"singer":singer,"score":score,"issue":i}
         #print(str(code.text)) 
         #_=requests.post("http://localhost:8888/addSong",data = res )
-        i = i + 1    
+           
 while i<=x:#x:#1132
     try:
-        getData()
+        getData(i,url,USER_AGENTS,raw_list)
     except Exception:
-        getData()
+        getData(i,url,USER_AGENTS,raw_list)
+    else:
+        i = i + 1 
 raw_json = listToJson(raw_list)
 time = time.localtime(time.time())
 t_str = str(time.tm_year)+'-'+str(time.tm_mon)+'-'+str(time.tm_mday)+"-"+str(time.tm_hour)+"_"+str(time.tm_min)+'_'+str(time.tm_sec)
