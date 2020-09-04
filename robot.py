@@ -48,27 +48,28 @@ x = 1166#int(xs[(start+1):(end+1)])
 print(x)
 raw_list = []
 #x =int(x)
-while i<=x:#x:#1132
+
+def getData():
     print(i)
     urln = url + str(i)
     #print(urln)
     headers={'User-Agent':random.choice(USER_AGENTS)}
-    try:
-        response = requests.get(urln,headers=headers)
-    except ConnectionError:
-        print("connectionError:"+urln)
+    #try:
+    response = requests.get(urln,headers=headers)
+    #except ConnectionError:
+     #   print("connectionError:"+urln)
+    #else:
+    status_code = response.status_code
+    content = bs4.BeautifulSoup(response.content.decode("utf-8"),"lxml")
+    code = content.find('table')
+    if(status_code == 404): 
+        print('404_')
     else:
-        status_code = response.status_code
-        content = bs4.BeautifulSoup(response.content.decode("utf-8"),"lxml")
-        code = content.find('table')
-        if(status_code == 404): 
-            print('404_')
-        else:
-            try:
-                raw  = code.prettify()
-                raw_list.append(raw)
-            except AttributeError:
-                print("AttributeError")
+    #        try:
+        raw  = code.prettify()
+        raw_list.append(raw)
+        #    except AttributeError:
+         #       print("AttributeError")
         #print(status_code)
         #获取h1
         #h1 = code.find('h1')
@@ -84,7 +85,12 @@ while i<=x:#x:#1132
         #res = {"title":title,"pic":pic,"singer":singer,"score":score,"issue":i}
         #print(str(code.text)) 
         #_=requests.post("http://localhost:8888/addSong",data = res )
-        i = i + 1
+        i = i + 1    
+while i<=x:#x:#1132
+    try:
+        getData()
+    except Exception:
+        getData()
 raw_json = listToJson(raw_list)
 time = time.localtime(time.time())
 t_str = str(time.tm_year)+'-'+str(time.tm_mon)+'-'+str(time.tm_mday)+"-"+str(time.tm_hour)+"_"+str(time.tm_min)+'_'+str(time.tm_sec)
