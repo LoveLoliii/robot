@@ -5,7 +5,10 @@ go_module/test/my.crt
 go_module/test/my.csr
 go_module/test/my.key
 go_module/test/nohup.out
-go_module/test/views/upload/hosts
+
 go_module/test/views/upload/v-2020.1.rar
 go_module/test/views/upload/*
 go_module/test/views/golang-developer-roadmap.png
+go_module/test/server
+go_module/test/views/upload/hosts
+

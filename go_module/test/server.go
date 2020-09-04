@@ -147,6 +147,15 @@ func main() {
 		ctx.View("query_song.html")
 
 	})
+	// a game
+	app.Get("/cat", func(ctx iris.Context) {
+		logger.Info("router info",
+			zap.String("method", "GET"),
+			zap.String("url", "/cat"),
+		)
+		ctx.View("圈小猫.html")
+
+	})
 
 	app.Get("/mypath", func(ctx iris.Context) {
 		ctx.Writef("Hello from the SECURE server on path /mypath")
