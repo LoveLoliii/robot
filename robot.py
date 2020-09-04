@@ -1,3 +1,4 @@
+#encoding:utf-8
 import requests
 import bs4
 import json
@@ -43,7 +44,7 @@ start = int(it.find("#"))
 # 截取4位 如果issue超过9999 或者小于1000 会出错
 end = start + 4
 xs = str(it)
-x =int(xs[start+1:end+1])
+x = 1166#int(xs[(start+1):(end+1)])
 print(x)
 raw_list = []
 #x =int(x)
@@ -63,8 +64,11 @@ while i<=x:#x:#1132
         if(status_code == 404): 
             print('404_')
         else:
-            raw  = code.prettify()
-            raw_list.append(raw)
+            try:
+                raw  = code.prettify()
+                raw_list.append(raw)
+            except AttributeError:
+                print("AttributeError")
         #print(status_code)
         #获取h1
         #h1 = code.find('h1')
