@@ -170,7 +170,7 @@ func main() {
 				fmt.Println(k)
 				//ctx.ViewData("htmls", v)
 				//ctx.View("s.html")
-				ss := template.HTMLEscapeString("<div>hello</div>")
+				ss := template.HTMLEscapeString(v)
 				ctx.Writef(ss)
 				break
 			}
