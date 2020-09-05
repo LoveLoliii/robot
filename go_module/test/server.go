@@ -158,11 +158,12 @@ func main() {
 			zap.String("url", "/s/"+s),
 		)
 		result := readJSON("./raw.json")
-		err := json.Unmarshal([]byte(result), &ScoreMap{})
+		var mapResult map[string]interface{}
+		err := json.Unmarshal([]byte(result), &mapResult)
 		if err != nil {
 			fmt.Println("Error:", err)
 		}
-		fmt.Println(ScoreMap)
+		fmt.Println(mapResult)
 	})
 	// query on web
 	app.Get("/querySong", func(ctx iris.Context) {
