@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"mime/multipart"
 	"os"
@@ -163,12 +164,14 @@ func main() {
 		if err != nil {
 			//fmt.Println("Error:", err)
 		}
-	//	fmt.Println(mapResult)
+		//	fmt.Println(mapResult)
 		for k, v := range mapResult {
 			if k == s {
 				fmt.Println(k)
-				ctx.ViewData("htmls", v)
-				ctx.View("s.html")
+				//ctx.ViewData("htmls", v)
+				//ctx.View("s.html")
+				ss := template.HTMLEscapeString("<div>hello</div>")
+				ctx.Writef(ss)
 				break
 			}
 
