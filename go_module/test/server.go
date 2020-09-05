@@ -56,19 +56,24 @@ func getTimes() int64 {
 
 	return times
 }
+logger, _ := zap.NewProduction()
+
+func routerInfoLog(method String,url String){
+	logger.Info("router info",
+			zap.String("method", method),
+			zap.String("url", url),
+		)
+}
 
 func main() {
 	initStart()
-	logger, _ := zap.NewProduction()
+	
 	defer logger.Sync()
 	app := iris.New()
 	app.RegisterView(iris.HTML("./views", ".html"))
 	//app.Use(myMiddleware)
 	app.Get("/", func(ctx iris.Context) {
-		logger.Info("router info",
-			zap.String("method", "GET"),
-			zap.String("url", "/"),
-		)
+		routerInfoLog("Get","/")
 		// Bind: {{.message}} with "Hello world!"
 		ctx.ViewData("message", "Hi Sayari !")
 		// Render template file: ./views/hello.html
@@ -77,11 +82,7 @@ func main() {
 		ctx.View("hello.html")
 	})
 	app.Post("/addSong", func(ctx iris.Context) {
-		logger.Info("router info",
-			zap.String("method", "POST"),
-			zap.String("url", "/addSong"),
-		)
-
+		routerInfoLog("POST","/addSong")
 		title := ctx.PostValue("title")
 		pic := ctx.PostValue("pic")
 		singer := ctx.PostValue("singer")
@@ -137,7 +138,25 @@ func main() {
 			ctx.Writef("title:%s\npic:%s\nsinger:%s\nscore:%s\nissue:%s", v.Title, v.Pic, v.Singer, v.Score, v.Issue)
 		}
 	})
-
+	// query score list on html
+	app.Get("/q/{q:string}", func(ctx iris.Context) {
+		q, _ := ctx.Params().GetString("q")
+		logger.Info("router info",
+			zap.String("method", "GET"),
+			zap.String("url", "/q/"+q),
+		)
+		// read json
+		// json to map
+		// get issue id list and some song info
+		// return list info 
+	})
+	app.Get("/s/{s:string}",func (ctx iris.Context)  {
+		s,_ :=ctx.Params().GetString("s")
+		logger.Info("router info",
+			zap.String("method", "GET"),
+			zap.String("url", "/s/"+s),
+		)	
+	})
 	// query on web
 	app.Get("/querySong", func(ctx iris.Context) {
 		logger.Info("router info",
