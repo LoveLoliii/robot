@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -155,6 +157,12 @@ func main() {
 			zap.String("method", "GET"),
 			zap.String("url", "/s/"+s),
 		)
+		result := readJSON("./raw.json")
+		err := json.Unmarshal([]byte(result), &ScoreMap)
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+		fmt.Println(ScoreMap)
 	})
 	// query on web
 	app.Get("/querySong", func(ctx iris.Context) {
@@ -261,12 +269,43 @@ func myMiddleware(ctx iris.Context) {
 	ctx.Next()
 }
 
-//gorm
+func readJSON(filePath string) (result string) {
+	file, err := os.Open(filePath)
+	defer file.Close()
+	if err != nil {
+		fmt.Println("ERROR:", err)
+	}
+	buf := bufio.NewReader(file)
+	for {
+		s, err := buf.ReadString('\n')
+		result += s
+		if err != nil {
+			if err == io.EOF {
+				fmt.Println("Read is ok")
+				break
+			} else {
+				fmt.Println("ERROR:", err)
+				return
+			}
+		}
+	}
+	return result
+}
+
+// ScoreMap is a scoreMap.
+type ScoreMap struct {
+	Key   string
+	Value string
+}
+
+// Product is a simple
 type Product struct {
 	gorm.Model
 	Code  string
 	Price uint
 }
+
+// Song is a song.
 type Song struct {
 	Title  string
 	Pic    string
