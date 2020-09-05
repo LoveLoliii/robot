@@ -161,12 +161,12 @@ func main() {
 		var mapResult map[string]interface{}
 		err := json.Unmarshal([]byte(result), &mapResult)
 		if err != nil {
-			fmt.Println("Error:", err)
+			//fmt.Println("Error:", err)
 		}
-		fmt.Println(mapResult)
+	//	fmt.Println(mapResult)
 		for k, v := range mapResult {
 			if k == s {
-				fmt.Println(k, v)
+				fmt.Println(k)
 				ctx.ViewData("htmls", v)
 				ctx.View("s.html")
 				break
@@ -283,7 +283,7 @@ func readJSON(filePath string) (result string) {
 	file, err := os.Open(filePath)
 	defer file.Close()
 	if err != nil {
-		fmt.Println("ERROR:", err)
+		//		fmt.Println("ERROR:", err)
 	}
 	buf := bufio.NewReader(file)
 	for {
