@@ -158,7 +158,7 @@ func main() {
 			zap.String("url", "/s/"+s),
 		)
 		result := readJSON("./raw.json")
-		err := json.Unmarshal([]byte(result), &ScoreMap)
+		err := json.Unmarshal([]byte(result), &ScoreMap{})
 		if err != nil {
 			fmt.Println("Error:", err)
 		}
