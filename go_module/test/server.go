@@ -164,6 +164,15 @@ func main() {
 			fmt.Println("Error:", err)
 		}
 		fmt.Println(mapResult)
+		for k, v := range mapResult {
+			if k == s {
+				fmt.Println(k, v)
+				ctx.ViewData("htmls", v)
+				ctx.View("s.html")
+				break
+			}
+
+		}
 	})
 	// query on web
 	app.Get("/querySong", func(ctx iris.Context) {
