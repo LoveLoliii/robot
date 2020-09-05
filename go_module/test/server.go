@@ -139,7 +139,7 @@ func main() {
 	})
 	// query score list on html
 	app.Get("/q/{q:string}", func(ctx iris.Context) {
-		q, _ := ctx.Params().GetString("q")
+		q := ctx.Params().GetString("q")
 		logger.Info("router info",
 			zap.String("method", "GET"),
 			zap.String("url", "/q/"+q),
@@ -150,7 +150,7 @@ func main() {
 		// return list info
 	})
 	app.Get("/s/{s:string}", func(ctx iris.Context) {
-		s, _ := ctx.Params().GetString("s")
+		s := ctx.Params().GetString("s")
 		logger.Info("router info",
 			zap.String("method", "GET"),
 			zap.String("url", "/s/"+s),
