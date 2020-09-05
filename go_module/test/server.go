@@ -5,7 +5,7 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
-	"html/template"
+	//"html/template"
 	"io"
 	"mime/multipart"
 	"os"
@@ -170,8 +170,8 @@ func main() {
 				fmt.Println(k)
 				//ctx.ViewData("htmls", v)
 				//ctx.View("s.html")
-				ss := template.HTMLEscapeString(v)
-				ctx.Writef(ss)
+				//ss := template.HTMLEscapeString(v)
+				ctx.Writef(v.(string))
 				break
 			}
 
