@@ -35,7 +35,7 @@
                         auto-grow  
                         elevation=5
                         readonly  
-                        v-model="rs" 
+                        v-html="rs" 
                         outlined
                         color="teal  lighten-5"
                         max-counter=8
@@ -74,7 +74,7 @@
         submit(eve) {
             //alert(this.search)
             axios
-                .post("/querySong/"+this.search)
+                .get("/q/"+this.search)
                 .then(response => (this.rs = response.data))
                 .catch(function (error){
                     console.info(error)
