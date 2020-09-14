@@ -5,6 +5,8 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	//"html/template"
 	"io"
 	"mime/multipart"
@@ -148,8 +150,26 @@ func main() {
 			zap.String("url", "/q/"+q),
 		)
 		// read json
+		result := readJSON("./raw.json")
 		// json to map
+		var mapResult map[string]interface{}
+		err := json.Unmarshal([]byte(result), &mapResult)
+		if err != nil {
+			//fmt.Println("Error:", err)
+		}
 		// get issue id list and some song info
+		for k, v := range mapResult {
+			if strings.Contains(k, q) {
+				fmt.Println(k)
+				//ctx.ViewData("htmls", v)
+				//ctx.View("s.html")
+				//ss := template.HTMLEscapeString(v)
+				ctx.Writef(v.(string))
+				break
+			}
+
+		}
+
 		// return list info
 	})
 	app.Get("/s/{s:string}", func(ctx iris.Context) {
