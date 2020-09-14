@@ -159,7 +159,7 @@ func main() {
 		}
 		// get issue id list and some song info
 		for k, v := range mapResult {
-			if strings.Contains(v, q) {
+			if strings.Contains(str(v), q) {
 				fmt.Println(k)
 				//ctx.ViewData("htmls", v)
 				//ctx.View("s.html")
