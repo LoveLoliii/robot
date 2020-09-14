@@ -13,6 +13,9 @@ def listToJson(lst):
     list_json = dict(zip(keys, lst))
     str_json = json.dumps(list_json, indent=2, ensure_ascii=False)  # json转为string
     return str_json
+def dicToJson(raw):
+    str_json = json.dumps(raw)
+    return str_json
 #user_agent 集合
 USER_AGENTS = [
     "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; AcooBrowser; .NET CLR 1.1.4322; .NET CLR 2.0.50727)",
@@ -44,9 +47,9 @@ start = int(it.find("#"))
 # 截取4位 如果issue超过9999 或者小于1000 会出错
 end = start + 4
 xs = str(it)
-x = 1166#int(xs[(start+1):(end+1)])
+x = 1166 #int(xs[(start+1):(end+1)])
 print(x)
-raw_list = []
+raw_list = {}
 #x =int(x)
 
 def getData(i,url,USER_AGENTS,raw_list):
@@ -67,8 +70,14 @@ def getData(i,url,USER_AGENTS,raw_list):
             print('404_')
         else:
             try:
+                # raw信息
                 raw  = code.prettify()
-                raw_list.append(raw)
+                raw_list[i]=raw
+                # parse element
+                #song_name = code.find('h1').text
+                #print(song_name)
+                #score = code.find('code').text
+                #print(score)
             except AttributeError:
                print("AttributeError")
                getData(i,url,USER_AGENTS,raw_list)
@@ -95,7 +104,7 @@ while i<=x:#x:#1132
         getData(i,url,USER_AGENTS,raw_list)
     else:
         i = i + 1 
-raw_json = listToJson(raw_list)
+raw_json = dicToJson(raw_list)
 time = time.localtime(time.time())
 t_str = str(time.tm_year)+'-'+str(time.tm_mon)+'-'+str(time.tm_mday)+"-"+str(time.tm_hour)+"_"+str(time.tm_min)+'_'+str(time.tm_sec)
 fh = open('raw_json'+t_str+'.json','w',encoding="utf-8")

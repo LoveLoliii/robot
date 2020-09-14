@@ -17,6 +17,9 @@
        <v-btn @click="goQuery" class="ma-2" outlined  color="teal"  fab color="indigo">
            Go
         </v-btn>
+        <v-btn @click="goFileUpload" class="ma-2" outlined  color="teal"  fab color="indigo">
+          图床
+       </v-btn>
     </v-banner>
 
     <v-banner max-width=600 Elevation="5" max-counter=8 color="teal lighten-5">
@@ -41,6 +44,9 @@
       methods: {
         goQuery(event){
             window.location.href="/querySong"
+        },
+        goFileUpload(event){
+            window.location.href="/upload"
         }
     }
     }) 

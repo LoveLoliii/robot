@@ -35,14 +35,16 @@
                         auto-grow  
                         elevation=5
                         readonly  
-                        v-model="rs" 
+                        v-html="rs" 
                         outlined
                         color="teal  lighten-5"
                         max-counter=8
                         >
                     </v-textarea>
                  </v-col>  
-                 
+                 <v-col cols="12" sm ="8" md ="8" lg="10" xl="12">  
+			 <p><a :href="issue">...</a></p>
+               </v-col>  
                 
             </form>
             
@@ -65,13 +67,14 @@
       vuetify: new Vuetify(),
       data:{
           search:'',
-          rs:''
+          rs:'',
+	  issue:''
       },
       methods: {
         submit(eve) {
             //alert(this.search)
             axios
-                .post("/querySong/"+this.search)
+                .get("/q/"+this.search)
                 .then(response => (this.rs = response.data))
                 .catch(function (error){
                     console.info(error)

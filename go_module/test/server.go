@@ -1,8 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"crypto/md5"
+	"encoding/json"
 	"fmt"
+	"strings"
+
+	//"html/template"
 	"io"
 	"mime/multipart"
 	"os"
@@ -137,7 +142,61 @@ func main() {
 			ctx.Writef("title:%s\npic:%s\nsinger:%s\nscore:%s\nissue:%s", v.Title, v.Pic, v.Singer, v.Score, v.Issue)
 		}
 	})
+	// query score list on html
+	app.Get("/q/{q:string}", func(ctx iris.Context) {
+		q := ctx.Params().GetString("q")
+		logger.Info("router info",
+			zap.String("method", "GET"),
+			zap.String("url", "/q/"+q),
+		)
+		// read json
+		result := readJSON("./raw.json")
+		// json to map
+		var mapResult map[string]interface{}
+		err := json.Unmarshal([]byte(result), &mapResult)
+		if err != nil {
+			//fmt.Println("Error:", err)
+		}
+		// get issue id list and some song info
+		for k, v := range mapResult {
+			if strings.Contains(v.(string), q) {
+				fmt.Println(k)
+				//ctx.ViewData("htmls", v)
+				//ctx.View("s.html")
+				//ss := template.HTMLEscapeString(v)
+				ctx.Writef(v.(string))
+				break
+			}
 
+		}
+
+		// return list info
+	})
+	app.Get("/s/{s:string}", func(ctx iris.Context) {
+		s := ctx.Params().GetString("s")
+		logger.Info("router info",
+			zap.String("method", "GET"),
+			zap.String("url", "/s/"+s),
+		)
+		result := readJSON("./raw.json")
+		var mapResult map[string]interface{}
+		err := json.Unmarshal([]byte(result), &mapResult)
+		if err != nil {
+			//fmt.Println("Error:", err)
+		}
+		//	fmt.Println(mapResult)
+		for k, v := range mapResult {
+			if k == s {
+				fmt.Println(k)
+				//ctx.ViewData("htmls", v)
+				//ctx.View("s.html")
+				//ss := template.HTMLEscapeString(v)
+				ctx.Writef(v.(string))
+				break
+			}
+
+		}
+	})
 	// query on web
 	app.Get("/querySong", func(ctx iris.Context) {
 		logger.Info("router info",
@@ -243,12 +302,43 @@ func myMiddleware(ctx iris.Context) {
 	ctx.Next()
 }
 
-//gorm
+func readJSON(filePath string) (result string) {
+	file, err := os.Open(filePath)
+	defer file.Close()
+	if err != nil {
+		//		fmt.Println("ERROR:", err)
+	}
+	buf := bufio.NewReader(file)
+	for {
+		s, err := buf.ReadString('\n')
+		result += s
+		if err != nil {
+			if err == io.EOF {
+				fmt.Println("Read is ok")
+				break
+			} else {
+				fmt.Println("ERROR:", err)
+				return
+			}
+		}
+	}
+	return result
+}
+
+// ScoreMap is a scoreMap.
+type ScoreMap struct {
+	Key   string
+	Value string
+}
+
+// Product is a simple
 type Product struct {
 	gorm.Model
 	Code  string
 	Price uint
 }
+
+// Song is a song.
 type Song struct {
 	Title  string
 	Pic    string
