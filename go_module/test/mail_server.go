@@ -18,7 +18,7 @@ func main() {
 	s.AllowInsecureAuth = true
 
 	log.Println("Starting IMAP server at localhost:1143")
-	if err := s.ListenAndServer(); err != nil {
+	if err := s.ListenAndServe(); err != nil {
 		log.Fatal(err)
 	}
 }
