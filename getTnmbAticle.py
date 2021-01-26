@@ -8,14 +8,16 @@ import time
 #此url是将要爬取的url
 #url = 'https://tnmb.org/t/163880?page='
 #t为串号
-t='1376846'
-url = 'https://tnmb.org/t/'+t+'?page='
+#t='1376846'
+#url = 'https://tnmb.org/t/'+t+'?page='
+t='34139581'
+url = 'https://adnmb3.com/t/'+t+'?page='
 #起始页
 i = 1
 #总页数
-pages=68
+pages=13
 #过滤字数
-filter_words=150
+filter_words=50
 #保存爬取内容
 total=""
 #user_agent 集合
