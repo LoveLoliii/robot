@@ -9,13 +9,13 @@ import time
 #url = 'https://tnmb.org/t/163880?page='
 #t为串号
 #t='1376846'
-#url = 'https://tnmb.org/t/'+t+'?page='
-t='34139581'
+#url = 'https://tnmb.org/t/'+t+'?page='   
+t='29323058'
 url = 'https://adnmb3.com/t/'+t+'?page='
 #起始页
 i = 1
 #总页数
-pages=13
+pages=86
 #过滤字数
 filter_words=50
 #保存爬取内容
@@ -44,7 +44,7 @@ while i<=pages:
     urln = url + str(i)
     #print(urln)
     headers={'User-Agent':random.choice(USER_AGENTS)}
-    print(headers)
+    print('percent: {:.2%}'.format(i/pages))
     response = requests.get(urln,headers=headers)
     status_code = response.status_code
     content = bs4.BeautifulSoup(response.content.decode("utf-8"),"lxml")
